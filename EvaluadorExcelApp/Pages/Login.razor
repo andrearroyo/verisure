@@ -1,4 +1,4 @@
-@page "/verisure/login"
+@page "/login"
 @layout NoLayout
 @inject NavigationManager Navigation
 @inject ISnackbar Snackbar
@@ -54,7 +54,7 @@
                     if (username == "admin" && password == "verisure2026")
                     {
                         AuthService.Login();
-                        Navigation.NavigateTo("/verisure");
+                        Navigation.NavigateTo("/");
                         Snackbar.Add("Bienvenido", Severity.Success);
                     }
                     else

@@ -26,13 +26,13 @@
     {
         if (!AuthService.IsAuthenticated)
         {
-            Navigation.NavigateTo("/verisure/login");
+            Navigation.NavigateTo("login");
         }
     }
 
     private void Logout()
     {
         AuthService.Logout();
-        Navigation.NavigateTo("/verisure/login");
+        Navigation.NavigateTo("login");
     }
 }
