@@ -1,0 +1,209 @@
+﻿@page "/"
+@using System.Text
+@inject TransactionProcessor Processor
+@inject ExcelExportService ExcelService
+@inject IJSRuntime JS
+@inject ISnackbar Snackbar
+@inject AuthService AuthService
+
+<MudText Typo="Typo.h4" GutterBottom="true">Procesador Verisure</MudText>
+
+<MudGrid Class="mb-4">
+    <MudItem xs="4">
+        <MudPaper Class="pa-4 orange darken-1 white-text">
+            <MudText Typo="Typo.h6">SUM Cobro (F)</MudText>
+            <MudText Typo="Typo.h4">@SumCobro.ToString("N2")</MudText>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="4">
+        <MudPaper Class="pa-4 light-blue darken-1 white-text">
+            <MudText Typo="Typo.h6">SUM Pago Cliente (H)</MudText>
+            <MudText Typo="Typo.h4">@SumPagoCliente.ToString("N2")</MudText>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="4">
+        <MudPaper Class="pa-4 deep-purple accent-4 white-text">
+            <MudText Typo="Typo.h6">Resultado Control</MudText>
+            <MudText Typo="Typo.h4">@Resultado.ToString("N2")</MudText>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+<MudStack Row="true" Class="mb-4" AlignItems="AlignItems.Center">
+    <MudFileUpload T="IBrowserFile" FilesChanged="HandleFileUpload" Disabled="@_isLoading">
+        <ActivatorContent>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.CloudUpload"
+                       Disabled="@_isLoading">
+                @(_isLoading ? "Cargando..." : "Cargar Archivo")
+            </MudButton>
+        </ActivatorContent>
+    </MudFileUpload>
+    
+    @if (_isLoading)
+    {
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Small" />
+    }
+
+    <MudButton Variant="Variant.Filled" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.AutoFixHigh" OnClick="ProcessNetting" Disabled="@(!allRecords.Any() || _isLoading)">Depurar</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Tertiary" StartIcon="@Icons.Material.Filled.FilterAlt" OnClick="SepararInvoices" Disabled="@(!allRecords.Any() || _isLoading)">Separar Invoices</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Assignment" OnClick="Consolidate" Disabled="@(!allRecords.Any() || _isLoading)">Consolidar</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.FileDownload" OnClick="ExportExcel" Disabled="@(!allRecords.Any() || _isLoading)">Exportar</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteSweep" OnClick="ClearAll" Disabled="@_isLoading">Limpiar</MudButton>
+</MudStack>
+
+@if (processedRecords.Any())
+{
+    <MudDataGrid Items="@processedRecords" Height="500px" FixedHeader="true" Dense="true" Hover="true">
+        <Columns>
+            <PropertyColumn Property="x => x.Fecha" Title="Operación" Format="dd/MM/yyyy" />
+            <PropertyColumn Property="x => x.Descripcion" Title="Descripción" />
+            <PropertyColumn Property="x => x.CodigoBoleta" Title="Boleta" />
+            <PropertyColumn Property="x => x.MontoPago" Title="Cobro (F)" />
+            <PropertyColumn Property="x => x.MontoPago2" Title="Pago (H)" />
+            <PropertyColumn Property="x => x.CodigoFactura" Title="Factura" />
+        </Columns>
+    </MudDataGrid>
+}
+
+@code {
+    private List<TransactionRecord> originalRecords = new();
+    private List<TransactionRecord> allRecords = new();
+    private List<TransactionRecord> processedRecords = new();
+    private List<TransactionRecord> reportarRecords = new();
+    private bool _isLoading;
+
+    // Indicators: Use originalRecords to keep them "inalterable" (Master source)
+    private decimal SumCobro => originalRecords.Sum(x => x.MontoPago);
+    private decimal SumPagoCliente => originalRecords.Sum(x => x.MontoPago2);
+    private decimal Resultado => SumCobro - SumPagoCliente;
+
+    private async Task HandleFileUpload(IBrowserFile file)
+    {
+        if (file == null) return;
+        _isLoading = true;
+        StateHasChanged();
+        try
+        {
+            using var reader = new StreamReader(file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024)); // 10MB max
+            var content = await reader.ReadToEndAsync();
+            
+            // Full Reset before loading new
+            originalRecords = new List<TransactionRecord>();
+            allRecords = new List<TransactionRecord>();
+            processedRecords = new List<TransactionRecord>();
+
+            originalRecords = Processor.ProcessFile(content);
+            allRecords = originalRecords.Select(r => new TransactionRecord {
+                FechaRegistro = r.FechaRegistro,
+                Fecha = r.Fecha,
+                Descripcion = r.Descripcion,
+                CodigoBoleta = r.CodigoBoleta,
+                MontoPago = r.MontoPago,
+                MontoPago2 = r.MontoPago2,
+                CodigoFactura = r.CodigoFactura,
+                RawParts = r.RawParts
+            }).ToList();
+            
+            processedRecords = allRecords.ToList();
+            Snackbar.Add($"Archivo cargado con éxito ({originalRecords.Count} registros)", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Error al cargar archivo: " + ex.Message, Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void ProcessNetting()
+    {
+        // 1. apply netting rules
+        var nettList = Processor.ApplyNetting(allRecords, out reportarRecords);
+        // 2. update survivors list (Working set)
+        allRecords = nettList;
+        // 3. Grid display (Keep non-zero payments OR any INVOICE)
+        processedRecords = allRecords.Where(r => r.MontoPago2 != 0 || string.Equals(r.Descripcion, "INVOICE", StringComparison.OrdinalIgnoreCase)).ToList();
+        Snackbar.Add("Netting finalizado correctamente.", Severity.Success);
+    }
+
+    private void SepararInvoices()
+    {
+        // Filter from current working set (allRecords)
+        processedRecords = allRecords.Where(r => r.Descripcion == "INVOICE").ToList();
+        Snackbar.Add($"Se han extraído {processedRecords.Count} registros de INVOICE.", Severity.Info);
+    }
+
+    private void Consolidate()
+    {
+        var consolidado = allRecords
+            .GroupBy(r => r.Fecha.Date) 
+            .Select(g => new
+            {
+                Fecha = g.Key,
+                TotalH = g.Sum(r => r.MontoPago2) 
+            })
+            .OrderBy(x => x.Fecha)
+            .ToList();
+
+        // Update grid view ONLY. master lists stay intact.
+        processedRecords = consolidado.Select(c => new TransactionRecord 
+        { 
+            Fecha = c.Fecha, 
+            Descripcion = "CONSOLIDADO", 
+            MontoPago2 = c.TotalH,
+            MontoPago = 0 
+        }).ToList();
+
+        // Validation Summary (H sum of survivors vs H sum of consolidation)
+        decimal sumTotalH = consolidado.Sum(x => x.TotalH);
+        decimal currentSumH = allRecords.Sum(r => r.MontoPago2); 
+
+        if (Math.Abs(sumTotalH - currentSumH) < 0.01m)
+        {
+            Snackbar.Add($"Validación Exitosa: Sum Consolidado coincide con sobrevivientes.", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add($"Advertencia: Las sumas no coinciden.", Severity.Warning);
+        }
+    }
+
+    private async Task ExportExcel()
+    {
+        _isLoading = true;
+        StateHasChanged();
+        try
+        {
+            // Survivors with payments OR Invoices
+            var itemsToExport = allRecords.Where(r => r.MontoPago2 != 0 || string.Equals(r.Descripcion, "INVOICE", StringComparison.OrdinalIgnoreCase)).ToList();
+            var bytes = ExcelService.GenerateExcel(originalRecords, itemsToExport);
+            await JS.InvokeVoidAsync("downloadFile", "Reporte_Verisure.xlsx", Convert.ToBase64String(bytes));
+            Snackbar.Add("Reporte exportado", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Error al exportar: " + ex.Message, Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void ClearAll()
+    {
+        originalRecords = new List<TransactionRecord>();
+        allRecords = new List<TransactionRecord>();
+        processedRecords = new List<TransactionRecord>();
+        reportarRecords = new List<TransactionRecord>();
+        _isLoading = false;
+        Snackbar.Add("Datos limpiados. Puede cargar un nuevo archivo.", Severity.Normal);
+        StateHasChanged();
+    }
+}

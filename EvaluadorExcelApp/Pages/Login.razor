@@ -1,0 +1,81 @@
+@page "/login"
+@layout NoLayout
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+@inject AuthService AuthService
+@inject IConfiguration Config
+@inject HttpClient Http
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-16">
+    <MudPaper Class="pa-8">
+        <MudText Typo="Typo.h5" Align="Align.Center" GutterBottom="true">Acceso al Sistema</MudText>
+        <MudTextField @bind-value="username" Label="Usuario" Variant="Variant.Outlined" Class="mb-4" />
+        <MudTextField @bind-value="password" Label="Contraseña" Variant="Variant.Outlined" InputType="InputType.Password" Class="mb-6" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" OnClick="HandleLogin" Disabled="@_isChecking">
+            @(_isChecking ? "Validando..." : "Ingresar")
+        </MudButton>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private string username = "";
+    private string password = "";
+    private bool _isChecking = false;
+
+    private async Task HandleLogin()
+    {
+        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+        {
+            Snackbar.Add("Por favor, ingrese usuario y contraseña", Severity.Warning);
+            return;
+        }
+
+        _isChecking = true;
+        StateHasChanged(); 
+        
+        try
+        {
+            var licenseBaseUrl = Config["Licencia"] ?? "http://localhost:5137/";
+            if (!licenseBaseUrl.EndsWith("/")) licenseBaseUrl += "/";
+            var licenseEndpoint = $"{licenseBaseUrl}api/Licencia";
+
+            // Usamos GetAsync para mayor control sobre la respuesta
+            using var response = await Http.GetAsync(licenseEndpoint);
+            var content = await response.Content.ReadAsStringAsync();
+            var result = content?.Trim().ToUpper();
+
+            if (result == "OK")
+            {
+                if (username == "admin" && password == "verisure2026")
+                {
+                    AuthService.Login();
+                    Navigation.NavigateTo("/");
+                    Snackbar.Add("Bienvenido", Severity.Success);
+                }
+                else
+                {
+                    Snackbar.Add("Usuario o contraseña incorrectos", Severity.Error);
+                }
+            }
+            else if (result == "ERROR")
+            {
+                Snackbar.Add("Su licencia esta vencida, por favor contacte con el administrador", Severity.Error);
+            }
+            else
+            {
+                // Si la respuesta no es OK ni ERROR, pero el status es exitoso, manejamos el caso
+                Snackbar.Add("Estado de licencia inválido o servicio no disponible", Severity.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Error al validar su licencia");
+            Console.WriteLine($"Error de licencia: {ex.Message}");
+        }
+        finally
+        {
+            _isChecking = false;
+            StateHasChanged();
+        }
+    }
+}
