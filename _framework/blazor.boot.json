@@ -1,7 +1,7 @@
 {
   "entryAssembly": "EvaluadorExcelApp",
   "resources": {
-    "hash": "sha256-zRFcjLroll+BbyubnhqLo8JvZWbKohHuJ1YxuVgtzOc=",
+    "hash": "sha256-q9LdwgfxYOUqvt8VmT+VSC/XE0ZoP+6NixKdNDHx/J8=",
     "runtime": {
       "dotnet.js": "sha256-eaJTmow4t8eE7FZMZR5Ja41JMOefGCbIYDTdpclGsac=",
       "dotnet.timezones.blat": "sha256-gbATD5HDsHYtW8vdPYh9iSBY4O5CjvMeCSF5xXWF1xo=",
@@ -62,7 +62,7 @@
       "System.Linq.dll": "sha256-2u+p4EOAHh7jGZRbW65OdvgaCSExwC9V+GjiZ+Fnnes=",
       "System.Memory.dll": "sha256-mYV2jCIc5g4h1tImm7je79fqs0vk5MvYf3aNZMRNI0s=",
       "System.Net.Http.Json.dll": "sha256-XhabPHlmnibWPgNMMpu5ZXOg4caa2snPNOA1s8HiDYM=",
-      "System.Net.Http.dll": "sha256-y6zekOp02nNK/3kL5E+1ldw/DnolNxd52uu9lMvXT9E=",
+      "System.Net.Http.dll": "sha256-7+v1wt5UdEWJUpyHsHeTb7JEfEFe17TIZLdf2+8jcDw=",
       "System.Net.Primitives.dll": "sha256-lRHkXONgvcWvgsYiJ3tChD1WrD3I5GfNzest8APgj8Y=",
       "System.Numerics.Vectors.dll": "sha256-BzGjFZNSGw4+jv+UtslXbs00lvN32n/JQfXtwrL4se0=",
       "System.ObjectModel.dll": "sha256-m27klA+5vdBp+hpqUbHbke7d4GXXebKddn4D9KuMsOw=",
@@ -87,7 +87,7 @@
       "System.dll": "sha256-X00CS76RYP+1bonecVV1Cn/0jOHeoVQUo1GS8UHpHpM=",
       "netstandard.dll": "sha256-bz5+OLGqE7D17il6Y2wtynBJQvNdkaP+fdA4YzdQiwM=",
       "System.Private.CoreLib.dll": "sha256-HeeRduZIjdK+Uk+NrbZmOPHS3A25H8wyl0g7wq3UipA=",
-      "EvaluadorExcelApp.dll": "sha256-7rSEhiECDJvYj1Jj6zDeWorOUCrXr6YsfmKx2mylHIo="
+      "EvaluadorExcelApp.dll": "sha256-psrfR/UAnaDcLyfkOj679696ya/067xsS7fKGWLLcrU="
     },
     "runtimeAssets": {
       "dotnet.wasm": {
