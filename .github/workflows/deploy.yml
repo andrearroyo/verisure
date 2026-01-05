@@ -19,8 +19,8 @@ jobs:
             - name: Publish .NET Core Project
               run: dotnet publish EvaluadorExcelApp/EvaluadorExcelApp.csproj -c Release -o release --nologo
 
-            - name: Change base-tag in index.html from / to /EvaluadorExcelApp/
-              run: sed -i 's/<base href="\/" \/>/<base href="\/EvaluadorExcelApp\/" \/>/g' release/wwwroot/index.html
+            - name: Change base-tag in index.html from / to /verisure/
+              run: sed -i 's/<base href="\/" \/>/<base href="\/verisure\/" \/>/g' release/wwwroot/index.html
 
             - name: Copy index.html to 404.html
               run: cp release/wwwroot/index.html release/wwwroot/404.html
