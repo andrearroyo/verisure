@@ -47,27 +47,33 @@
             var content = await response.Content.ReadAsStringAsync();
             var result = content?.Trim().ToUpper();
 
-            if (result == "OK")
+            if (response.IsSuccessStatusCode)
             {
-                if (username == "admin" && password == "verisure2026")
+                if (result == "OK")
                 {
-                    AuthService.Login();
-                    Navigation.NavigateTo("/");
-                    Snackbar.Add("Bienvenido", Severity.Success);
+                    if (username == "admin" && password == "verisure2026")
+                    {
+                        AuthService.Login();
+                        Navigation.NavigateTo("/");
+                        Snackbar.Add("Bienvenido", Severity.Success);
+                    }
+                    else
+                    {
+                        Snackbar.Add("Usuario o contraseña incorrectos", Severity.Error);
+                    }
+                }
+                else if (result == "ERROR")
+                {
+                    Snackbar.Add("Su licencia esta vencida, por favor contacte con el administrador", Severity.Error);
                 }
                 else
                 {
-                    Snackbar.Add("Usuario o contraseña incorrectos", Severity.Error);
+                    Snackbar.Add($"Respuesta inesperada: {result}", Severity.Warning);
                 }
-            }
-            else if (result == "ERROR")
-            {
-                Snackbar.Add("Su licencia esta vencida, por favor contacte con el administrador", Severity.Error);
             }
             else
             {
-                // Si la respuesta no es OK ni ERROR, pero el status es exitoso, manejamos el caso
-                Snackbar.Add("Estado de licencia inválido o servicio no disponible", Severity.Warning);
+                Snackbar.Add($"Error de API ({response.StatusCode}): {result}", Severity.Error);
             }
         }
         catch (Exception ex)
