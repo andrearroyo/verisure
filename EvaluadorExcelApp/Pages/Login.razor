@@ -39,8 +39,11 @@
             if (!licenseBaseUrl.EndsWith("/")) licenseBaseUrl += "/";
             var licenseEndpoint = $"{licenseBaseUrl}api/Licencia";
 
-            // Usamos GetAsync para mayor control sobre la respuesta
-            using var response = await Http.GetAsync(licenseEndpoint);
+            // Usamos HttpRequestMessage para añadir el header de ngrok
+            using var request = new HttpRequestMessage(HttpMethod.Get, licenseEndpoint);
+            request.Headers.Add("ngrok-skip-browser-warning", "69420");
+            
+            using var response = await Http.SendAsync(request);
             var content = await response.Content.ReadAsStringAsync();
             var result = content?.Trim().ToUpper();
 
