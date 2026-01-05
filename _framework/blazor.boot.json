@@ -1,7 +1,7 @@
 {
   "entryAssembly": "EvaluadorExcelApp",
   "resources": {
-    "hash": "sha256-VqmCiBOLOUXs5efTpsOmy/h9i0chONKEn2nC86mlokM=",
+    "hash": "sha256-4b5Ay7jfSJbOesSO7OOjojD5Au9NQAz5TwzQd2mzAnw=",
     "runtime": {
       "dotnet.js": "sha256-eaJTmow4t8eE7FZMZR5Ja41JMOefGCbIYDTdpclGsac=",
       "dotnet.timezones.blat": "sha256-gbATD5HDsHYtW8vdPYh9iSBY4O5CjvMeCSF5xXWF1xo=",
@@ -87,7 +87,7 @@
       "System.dll": "sha256-X00CS76RYP+1bonecVV1Cn/0jOHeoVQUo1GS8UHpHpM=",
       "netstandard.dll": "sha256-bz5+OLGqE7D17il6Y2wtynBJQvNdkaP+fdA4YzdQiwM=",
       "System.Private.CoreLib.dll": "sha256-HeeRduZIjdK+Uk+NrbZmOPHS3A25H8wyl0g7wq3UipA=",
-      "EvaluadorExcelApp.dll": "sha256-ME9Sdcomtk6s0W0MqUDdxpIs4uNNEK6kN4tdiYOdgs8="
+      "EvaluadorExcelApp.dll": "sha256-G1HMrNJgj+apwAGUbDkFMz3/keerrohlYagmaB2LYYI="
     },
     "runtimeAssets": {
       "dotnet.wasm": {
