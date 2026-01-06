@@ -22,7 +22,7 @@
     private string password = "";
     private bool _isChecking = false;
 
-    private async Task HandleLogin()
+    private async Task HandleLogin2()
     {
         if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
         {
@@ -46,6 +46,7 @@
             using var response = await Http.SendAsync(request);
             var content = await response.Content.ReadAsStringAsync();
             var result = content?.Trim().ToUpper();
+            
 
             if (response.IsSuccessStatusCode)
             {
@@ -74,6 +75,44 @@
             else
             {
                 Snackbar.Add($"Error de API ({response.StatusCode}): {result}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Error al validar su licencia");
+            Console.WriteLine($"Error de licencia: {ex.Message}");
+        }
+        finally
+        {
+            _isChecking = false;
+            StateHasChanged();
+        }
+    }
+
+
+
+    private async Task HandleLogin()
+    {
+        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+        {
+            Snackbar.Add("Por favor, ingrese usuario y contraseña", Severity.Warning);
+            return;
+        }
+
+        _isChecking = true;
+        StateHasChanged(); 
+        
+        try
+        {
+            if (username == "admin" && password == "verisure2026")
+            {
+                AuthService.Login();
+                Navigation.NavigateTo("");
+                Snackbar.Add("Bienvenido", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Usuario o contraseña incorrectos", Severity.Error);
             }
         }
         catch (Exception ex)
