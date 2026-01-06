@@ -16,5 +16,6 @@ namespace EvaluadorExcelApp.Models
         // For internal use
         public bool IsDeleted { get; set; }
         public int DiffDays { get; set; }
+        public bool HasOrphanIssue { get; set; }
     }
 }

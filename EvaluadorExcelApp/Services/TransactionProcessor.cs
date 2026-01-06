@@ -77,7 +77,11 @@ namespace EvaluadorExcelApp.Services
         {
             reportarRecords = new List<TransactionRecord>();
             // 1. Reset states
-            foreach (var r in allRecords) r.IsDeleted = false;
+            foreach (var r in allRecords) 
+            {
+                r.IsDeleted = false;
+                r.HasOrphanIssue = false;
+            }
 
             // 2. Sort by Date (Mandatory chronological order)
             allRecords = allRecords.OrderBy(r => r.Fecha).ToList();
@@ -113,6 +117,12 @@ namespace EvaluadorExcelApp.Services
                         }
                         if (matches) { neg.IsDeleted = true; pos.IsDeleted = true; continue; }
                     }
+                    
+                    // Specific orphan check for DEVTRANS
+                    if (string.Equals(neg.Descripcion, "DEVTRANS", StringComparison.OrdinalIgnoreCase))
+                    {
+                        neg.HasOrphanIssue = true;
+                    }
                 }
 
                 // Rule 2: LIMPI-SA
@@ -125,6 +135,7 @@ namespace EvaluadorExcelApp.Services
                         r.Fecha.Date == neg.Fecha.Date);
 
                     if (pos != null) { neg.IsDeleted = true; pos.IsDeleted = true; continue; }
+                    else { neg.HasOrphanIssue = true; }
                 }
 
                 // Rule 3: CREDIT vs INVOICE
@@ -146,6 +157,7 @@ namespace EvaluadorExcelApp.Services
                     }
 
                     if (pos != null) { neg.IsDeleted = true; pos.IsDeleted = true; continue; }
+                    else { neg.HasOrphanIssue = true; }
                 }
             }
 

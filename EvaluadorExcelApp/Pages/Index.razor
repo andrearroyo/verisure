@@ -53,9 +53,16 @@
     <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteSweep" OnClick="ClearAll" Disabled="@_isLoading">Limpiar</MudButton>
 </MudStack>
 
+@if (processedRecords.Any(r => r.HasOrphanIssue))
+{
+    <MudAlert Severity="Severity.Warning" Variant="Variant.Filled" Class="mb-4" Elevation="4">
+        <strong>Atención:</strong> Se han detectado registros negativos que no tienen un homólogo correspondiente (ej. LIMPI-SA, CREDIT, DEVTRANS). Estos registros se muestran resaltados en amarillo y requieren revisión manual.
+    </MudAlert>
+}
+
 @if (processedRecords.Any())
 {
-    <MudDataGrid Items="@processedRecords" Height="500px" FixedHeader="true" Dense="true" Hover="true">
+    <MudDataGrid Items="@processedRecords" Height="500px" FixedHeader="true" Dense="true" Hover="true" RowStyleFunc="@RowStyleFunc">
         <Columns>
             <PropertyColumn Property="x => x.Fecha" Title="Operación" Format="dd/MM/yyyy" />
             <PropertyColumn Property="x => x.Descripcion" Title="Descripción" />
@@ -205,5 +212,12 @@
         _isLoading = false;
         Snackbar.Add("Datos limpiados. Puede cargar un nuevo archivo.", Severity.Normal);
         StateHasChanged();
+    }
+
+    private string RowStyleFunc(TransactionRecord item, int index)
+    {
+        if (item.HasOrphanIssue)
+            return "background-color: #fff9c4;"; // Amarillo suave
+        return "";
     }
 }
