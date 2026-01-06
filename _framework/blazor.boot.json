@@ -1,7 +1,7 @@
 {
   "entryAssembly": "EvaluadorExcelApp",
   "resources": {
-    "hash": "sha256-4b5Ay7jfSJbOesSO7OOjojD5Au9NQAz5TwzQd2mzAnw=",
+    "hash": "sha256-LmVnsXQuXbrxdfMEn13hMkbBKagaF9egqkHB1/o0ZHs=",
     "runtime": {
       "dotnet.js": "sha256-eaJTmow4t8eE7FZMZR5Ja41JMOefGCbIYDTdpclGsac=",
       "dotnet.timezones.blat": "sha256-gbATD5HDsHYtW8vdPYh9iSBY4O5CjvMeCSF5xXWF1xo=",
@@ -34,7 +34,7 @@
       "Microsoft.Extensions.Primitives.dll": "sha256-TC9k/FatHcMyVjSaSl+o90l9NWdnl2/05D7TKkwJcp0=",
       "Microsoft.JSInterop.dll": "sha256-jiy0p2KEXYGTw5c+t9UUqdhsKeLtqzrkgMYjYSh9oCM=",
       "Microsoft.JSInterop.WebAssembly.dll": "sha256-lIj/y8P2id3fPTRMmeyVQ7A2pOxHz0JKK0TZjU9oSH4=",
-      "MudBlazor.dll": "sha256-I7IYakGCIY7awyM4U3Ls9r8FdAY1o85366yW77oxEcs=",
+      "MudBlazor.dll": "sha256-VDuULzH+38NuZ7aVUOB7c+xptNv76YNRJxqY3kS4ZO4=",
       "RBush.dll": "sha256-0U7/tfqMnlVNuzvyQJJy+wZncnAkDxiJijUjMVy2GHk=",
       "SixLabors.Fonts.dll": "sha256-4eLxB+fHj7hZ8bIzgxB6ElrNizp0cBQIUNqm9vbEXZ8=",
       "System.IO.Packaging.dll": "sha256-LO9brGEr1Yk3LJ/P8P96nnFCn/qsPwPe1gXR+idQehQ=",
@@ -87,7 +87,7 @@
       "System.dll": "sha256-X00CS76RYP+1bonecVV1Cn/0jOHeoVQUo1GS8UHpHpM=",
       "netstandard.dll": "sha256-bz5+OLGqE7D17il6Y2wtynBJQvNdkaP+fdA4YzdQiwM=",
       "System.Private.CoreLib.dll": "sha256-HeeRduZIjdK+Uk+NrbZmOPHS3A25H8wyl0g7wq3UipA=",
-      "EvaluadorExcelApp.dll": "sha256-G1HMrNJgj+apwAGUbDkFMz3/keerrohlYagmaB2LYYI="
+      "EvaluadorExcelApp.dll": "sha256-KN7Xix/qjZ4j/APGTvYxPb/s01JjrktBFVwHSHrVYcU="
     },
     "runtimeAssets": {
       "dotnet.wasm": {
