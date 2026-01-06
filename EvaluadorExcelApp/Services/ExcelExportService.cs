@@ -57,12 +57,22 @@ namespace EvaluadorExcelApp.Services
             int row = 2;
             foreach (var r in records)
             {
+                var rowRange = ws.Range(row, 1, row, 6);
                 ws.Cell(row, 1).Value = r.Fecha.Date;
                 ws.Cell(row, 2).Value = r.Descripcion;
                 ws.Cell(row, 3).Value = r.CodigoBoleta;
                 ws.Cell(row, 4).Value = r.MontoPago;
                 ws.Cell(row, 5).Value = r.MontoPago2;
                 ws.Cell(row, 6).Value = r.CodigoFactura;
+
+                if (r.HasPagoOrphanIssue)
+                {
+                    rowRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#fff9c4");
+                }
+                else if (r.HasCobroOrphanIssue)
+                {
+                    rowRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#b3e5fc");
+                }
                 row++;
             }
             ws.Columns().AdjustToContents();

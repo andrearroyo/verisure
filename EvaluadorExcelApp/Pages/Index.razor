@@ -30,7 +30,7 @@
 </MudGrid>
 
 <MudStack Row="true" Class="mb-4" AlignItems="AlignItems.Center">
-    <MudFileUpload T="IBrowserFile" FilesChanged="HandleFileUpload" Disabled="@_isLoading">
+    <MudFileUpload @key="@_uploadKey" T="IBrowserFile" FilesChanged="HandleFileUpload" Disabled="@_isLoading">
         <ActivatorContent>
             <MudButton Variant="Variant.Filled"
                        Color="Color.Primary"
@@ -53,10 +53,12 @@
     <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteSweep" OnClick="ClearAll" Disabled="@_isLoading">Limpiar</MudButton>
 </MudStack>
 
-@if (processedRecords.Any(r => r.HasOrphanIssue))
+@if (processedRecords.Any(r => r.HasPagoOrphanIssue || r.HasCobroOrphanIssue))
 {
     <MudAlert Severity="Severity.Warning" Variant="Variant.Filled" Class="mb-4" Elevation="4">
-        <strong>Atención:</strong> Se han detectado registros negativos que no tienen un homólogo correspondiente (ej. LIMPI-SA, CREDIT, DEVTRANS). Estos registros se muestran resaltados en amarillo y requieren revisión manual.
+        <strong>Atención:</strong> Se han detectado registros negativos que no tienen un homólogo correspondiente. 
+        Los registros de <strong>Pago</strong> se muestran en <span style="background-color: #fff9c4; color: black; padding: 2px 4px; border-radius: 4px;">amarillo</span> 
+        y los de <strong>Cobro</strong> en <span style="background-color: #b3e5fc; color: black; padding: 2px 4px; border-radius: 4px;">celeste</span>.
     </MudAlert>
 }
 
@@ -80,6 +82,7 @@
     private List<TransactionRecord> processedRecords = new();
     private List<TransactionRecord> reportarRecords = new();
     private bool _isLoading;
+    private Guid _uploadKey = Guid.NewGuid();
 
     // Indicators: Use originalRecords to keep them "inalterable" (Master source)
     private decimal SumCobro => originalRecords.Sum(x => x.MontoPago);
@@ -210,14 +213,17 @@
         processedRecords = new List<TransactionRecord>();
         reportarRecords = new List<TransactionRecord>();
         _isLoading = false;
+        _uploadKey = Guid.NewGuid();
         Snackbar.Add("Datos limpiados. Puede cargar un nuevo archivo.", Severity.Normal);
         StateHasChanged();
     }
 
     private string RowStyleFunc(TransactionRecord item, int index)
     {
-        if (item.HasOrphanIssue)
+        if (item.HasPagoOrphanIssue)
             return "background-color: #fff9c4;"; // Amarillo suave
+        if (item.HasCobroOrphanIssue)
+            return "background-color: #b3e5fc;"; // Celeste suave
         return "";
     }
 }

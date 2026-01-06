@@ -80,7 +80,8 @@ namespace EvaluadorExcelApp.Services
             foreach (var r in allRecords) 
             {
                 r.IsDeleted = false;
-                r.HasOrphanIssue = false;
+                r.HasPagoOrphanIssue = false;
+                r.HasCobroOrphanIssue = false;
             }
 
             // 2. Sort by Date (Mandatory chronological order)
@@ -121,7 +122,7 @@ namespace EvaluadorExcelApp.Services
                     // Specific orphan check for DEVTRANS
                     if (string.Equals(neg.Descripcion, "DEVTRANS", StringComparison.OrdinalIgnoreCase))
                     {
-                        neg.HasOrphanIssue = true;
+                        neg.HasPagoOrphanIssue = true;
                     }
                 }
 
@@ -135,7 +136,7 @@ namespace EvaluadorExcelApp.Services
                         r.Fecha.Date == neg.Fecha.Date);
 
                     if (pos != null) { neg.IsDeleted = true; pos.IsDeleted = true; continue; }
-                    else { neg.HasOrphanIssue = true; }
+                    else { neg.HasPagoOrphanIssue = true; }
                 }
 
                 // Rule 3: CREDIT vs INVOICE
@@ -157,11 +158,18 @@ namespace EvaluadorExcelApp.Services
                     }
 
                     if (pos != null) { neg.IsDeleted = true; pos.IsDeleted = true; continue; }
-                    else { neg.HasOrphanIssue = true; }
+                    else { neg.HasCobroOrphanIssue = true; }
                 }
             }
 
-            // 4. Final atomic filtering
+            // 4. Final pass for orphans: any surviving record with negative amounts is an orphan
+            foreach (var r in allRecords.Where(x => !x.IsDeleted))
+            {
+                if (r.MontoPago2 < 0) r.HasPagoOrphanIssue = true;
+                if (r.MontoPago < 0) r.HasCobroOrphanIssue = true;
+            }
+
+            // 5. Final atomic filtering
             var depurado = allRecords.Where(r => !r.IsDeleted).ToList();
             
             // Return full depurado for internal tracking
